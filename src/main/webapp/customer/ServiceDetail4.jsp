@@ -1,0 +1,14 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.garage.dao.ServiceDAO,com.garage.model.Service4" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%
+    String id = request.getParameter("id"); Service4 service = null;
+    try { if (id != null && !id.isBlank()) service = new ServiceDAO().findById(id).orElse(null); }
+    catch (java.sql.SQLException exception) { response.sendError(503, "Không đọc được dữ liệu dịch vụ."); return; }
+    if (service == null) { response.sendError(404, "Không tìm thấy dịch vụ."); return; }
+    request.setAttribute("service", service); request.setAttribute("keyword", request.getParameter("txtKeyword")); request.setAttribute("type", request.getParameter("cboType"));
+%>
+<c:url var="backUrl" value="/customer/SearchServiceAnhParePart4.jsp"><c:param name="txtKeyword" value="${keyword}"/><c:param name="cboType" value="${type}"/></c:url>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Thông tin chi tiết dịch vụ</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/styles.css"></head>
+<body class="customer-wireframe"><main class="customer-screen customer-detail-screen"><h1>Thông tin chi tiết dịch vụ</h1><section class="customer-detail-layout"><div class="customer-detail-image"><c:choose><c:when test="${not empty service.imageUrl}"><img src="<c:out value='${service.imageUrl}'/>" alt="Ảnh <c:out value='${service.serviceCode}'/>"/></c:when><c:otherwise>Chưa có ảnh</c:otherwise></c:choose></div><table class="customer-detail-table"><tbody><tr><th>Mã dịch vụ:</th><td id="lblServiceId"><c:out value="${service.serviceCode}"/></td></tr><tr><th>Tên dịch vụ:</th><td id="lblServiceName"><c:out value="${service.serviceName}"/></td></tr><tr><th>Loại dịch vụ:</th><td id="lblCategory"><c:out value="${service.serviceCategory.categoryName}" default="Chưa phân loại"/></td></tr><tr><th>Mô tả:</th><td id="lblDescription"><c:out value="${service.description}"/></td></tr><tr><th>Đơn giá:</th><td id="lblPrice"><fmt:formatNumber value="${service.price}" pattern="#,##0"/> đồng/lần</td></tr><tr><th>Thời gian dự kiến:</th><td id="lblEstimatedMinutes"><c:choose><c:when test="${not empty service.estimatedMinutes}">${service.estimatedMinutes} phút</c:when><c:otherwise>Liên hệ gara</c:otherwise></c:choose></td></tr><tr><th>Trạng thái:</th><td id="lblAvailabilityStatus"><c:choose><c:when test="${service.availabilityStatus eq 'AVAILABLE'}">Đang cung cấp</c:when><c:otherwise>Tạm ngưng</c:otherwise></c:choose></td></tr></tbody></table></section><a id="btnBackToSearch" class="customer-back-button" href="${backUrl}">Quay lại</a></main></body></html>
